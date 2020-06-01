@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:provider_shopper/models/cart.dart';
 import 'package:provider_shopper/models/catalog.dart';
+import 'package:provider_shopper/models/login.dart';
 
-class MyCatalog extends StatelessWidget {
+class CatalogScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,6 +56,13 @@ class _MyAppBar extends StatelessWidget {
           icon: Icon(Icons.shopping_cart),
           onPressed: () => Navigator.pushNamed(context, '/cart'),
         ),
+        RaisedButton(
+          child: Text("SIGN OUT"),
+          onPressed: () {
+            Provider.of<LoginModel>(context, listen: false).signOut();
+            Navigator.pushNamed(context, '/');
+          },
+        )
       ],
     );
   }

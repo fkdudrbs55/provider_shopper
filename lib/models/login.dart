@@ -6,6 +6,7 @@ enum Status { Uninitialized, Authenticated, Authenticating, Unauthenticated }
 class LoginModel extends ChangeNotifier {
   FirebaseAuth _auth;
   FirebaseUser _user;
+  String _userUID;
   Status _status = Status.Uninitialized;
 
   LoginModel.instance() : _auth = FirebaseAuth.instance {
@@ -15,19 +16,26 @@ class LoginModel extends ChangeNotifier {
   Status get status => _status;
   FirebaseUser get user => _user;
 
+  String get userUID => _user.uid;
+
   set (Status status) => _status = status;
 
   Future<bool> signIn(String email, String password) async {
     try {
       _status = Status.Authenticating;
-      notifyListeners();
       await _auth.signInWithEmailAndPassword(email: email, password: password);
-      return true;
+      print('Checkpoint for true');
     } catch (e) {
+      print(e.toString());
       _status = Status.Unauthenticated;
       notifyListeners();
+      print('Checkpoint for false');
       return false;
     }
+    _status = Status.Authenticated;
+    notifyListeners();
+
+    return true;
   }
 
   Future signOut() async {

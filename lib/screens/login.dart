@@ -3,14 +3,25 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:provider_shopper/models/login.dart';
 
+class LoginScreen extends StatefulWidget {
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
 
-class MyLogin extends StatelessWidget {
+class _LoginScreenState extends State<LoginScreen> {
 
+  TextEditingController _email;
+  TextEditingController _password;
 
+  @override
+  void initState() {
+    super.initState();
+    _email = TextEditingController(text: "");
+    _password = TextEditingController(text: "");
+  }
 
   @override
   Widget build(BuildContext context) {
-
     var login = Provider.of<LoginModel>(context);
 
     return Scaffold(
@@ -21,15 +32,17 @@ class MyLogin extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Welcome',
+                'Sample',
                 style: Theme.of(context).textTheme.headline,
               ),
               TextFormField(
+                controller: _email,
                 decoration: InputDecoration(
                   hintText: 'Username',
                 ),
               ),
               TextFormField(
+                controller: _password,
                 decoration: InputDecoration(
                   hintText: 'Password',
                 ),
@@ -40,16 +53,18 @@ class MyLogin extends StatelessWidget {
               ),
               RaisedButton(
                 color: Colors.yellow,
-                child: Text('ENTER'),
-                onPressed: () {
-
-                  if(login.status == Status.Authenticated){
+                child: Text('Sign in'),
+                onPressed: () async {
+                  if (await login.signIn(
+                      _email.text.trim(), _password.text.trim())) {
                     Navigator.pushReplacementNamed(context, '/catalog');
-                  } else {
-                    print(login.status.toString());
                   }
-
                 },
+              ),
+              RaisedButton(
+                color: Colors.yellow,
+                child: Text('Sign up'),
+//                onPressed: ,
               )
             ],
           ),
@@ -58,6 +73,10 @@ class MyLogin extends StatelessWidget {
     );
   }
 
-  //Connect with Firebase
-
+  @override
+  void dispose() {
+    _email.dispose();
+    _password.dispose();
+    super.dispose();
+  }
 }

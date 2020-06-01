@@ -19,7 +19,6 @@ class MyApp extends StatelessWidget {
     // Using MultiProvider is convenient when providing multiple objects.
     return MultiProvider(
       providers: [
-
         Provider(create: (context) => LoginModel.instance()),
         // In this sample app, CatalogModel never changes, so a simple Provider
         // is sufficient.
@@ -27,6 +26,7 @@ class MyApp extends StatelessWidget {
         // CartModel is implemented as a ChangeNotifier, which calls for the use
         // of ChangeNotifierProvider. Moreover, CartModel depends
         // on CatalogModel, so a ProxyProvider is needed.
+
         ChangeNotifierProxyProvider<CatalogModel, CartModel>(
           create: (context) => CartModel(),
           update: (context, catalog, cart) {
@@ -34,18 +34,21 @@ class MyApp extends StatelessWidget {
             return cart;
           },
         ),
-
       ],
-      child: MaterialApp(
-        title: 'Provider Demo',
-        theme: appTheme,
-        initialRoute: '/',
-        routes: {
-          '/': (context) => MyLogin(),
-          '/catalog': (context) => MyCatalog(),
-          '/cart': (context) => MyCart(),
-        },
-      ),
+        child: Consumer(
+            builder: (context, LoginModel user, _) {
+              return MaterialApp(
+                title: 'Provider Demo',
+                theme: appTheme,
+                initialRoute: '/',
+                routes: {
+                  '/': (context) => LoginScreen(),
+                  '/catalog': (context) => CatalogScreen(),
+                  '/cart': (context) => MyCart(),
+                },
+              );
+            }
+        )
     );
   }
 }
