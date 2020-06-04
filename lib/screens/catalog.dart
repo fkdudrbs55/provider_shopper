@@ -3,18 +3,40 @@ import 'package:provider/provider.dart';
 import 'package:provider_shopper/models/cart.dart';
 import 'package:provider_shopper/models/catalog.dart';
 import 'package:provider_shopper/models/login.dart';
+import 'package:provider_shopper/common/firestorageservice.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
 
 class CatalogScreen extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Navigator.pushNamed(context, '/adddata'),
+        child: Icon(Icons.add),
+        backgroundColor: Theme
+            .of(context)
+            .primaryColor,
+      ),
       body: CustomScrollView(
         slivers: [
           _MyAppBar(),
-          SliverToBoxAdapter(child: SizedBox(height: 12)),
-          SliverList(
+          //_MyAppBar 바로 밑에 있는 간격
+          SliverToBoxAdapter(child: SizedBox(height: 5)),
+          SliverGrid(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 1.0,
+              crossAxisSpacing: 5.0,
+            ),
+
             delegate: SliverChildBuilderDelegate(
-                    (context, index) => _MyListItem(index)),
+                    (context, index) {
+                  return _MyListItem(index);
+                },
+                childCount: CatalogModel.itemNames.length),
           ),
         ],
       ),
@@ -49,6 +71,7 @@ class _MyAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
+      automaticallyImplyLeading: false,
       title: Text('Catalog', style: Theme.of(context).textTheme.headline),
       floating: true,
       actions: [
@@ -56,12 +79,16 @@ class _MyAppBar extends StatelessWidget {
           icon: Icon(Icons.shopping_cart),
           onPressed: () => Navigator.pushNamed(context, '/cart'),
         ),
-        RaisedButton(
-          child: Text("SIGN OUT"),
+        IconButton(
+          icon: Icon(Icons.backspace),
           onPressed: () {
             Provider.of<LoginModel>(context, listen: false).signOut();
             Navigator.pushNamed(context, '/');
           },
+        ),
+        IconButton(
+          icon: Icon(Icons.person),
+          onPressed: () => Navigator.pushNamed(context, '/profile'),
         )
       ],
     );
@@ -73,6 +100,7 @@ class _MyListItem extends StatelessWidget {
 
   _MyListItem(this.index, {Key key}) : super(key: key);
 
+
   @override
   Widget build(BuildContext context) {
     var catalog = Provider.of<CatalogModel>(context);
@@ -80,9 +108,9 @@ class _MyListItem extends StatelessWidget {
     var textTheme = Theme.of(context).textTheme.body2;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: LimitedBox(
-        maxHeight: 48,
+        maxHeight: 150,
         child: Row(
           children: [
             AspectRatio(
@@ -91,15 +119,33 @@ class _MyListItem extends StatelessWidget {
                 color: item.color,
               ),
             ),
-            SizedBox(width: 24),
+            SizedBox(width: 10),
             Expanded(
               child: Text(item.name, style: textTheme),
             ),
-            SizedBox(width: 24),
+            SizedBox(width: 10),
             _AddButton(item: item),
           ],
         ),
       ),
     );
   }
+}
+
+class Record {
+  final String location;
+  final String url;
+  final DocumentReference reference;
+
+  Record.fromMap(Map<String, dynamic> map, {this.reference})
+      : assert(map['location'] != null),
+        assert(map['imageUrl'] != null),
+        location = map['location'],
+        url = map['imageUrl'];
+
+  Record.fromSnapshot(DocumentSnapshot snapshot)
+      : this.fromMap(snapshot.data, reference: snapshot.reference);
+
+  @override
+  String toString() => "Record<$location:$url>";
 }

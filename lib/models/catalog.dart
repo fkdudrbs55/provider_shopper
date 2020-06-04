@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
-/// A proxy of the catalog of items the user can buy.
-///
-/// In a real app, this might be backed by a backend and cached on device.
-/// In this sample app, the catalog is procedurally generated and infinite.
-///
-/// For simplicity, the catalog is expected to be immutable (no products are
-/// expected to be added, removed or changed during the execution of the app).
-class CatalogModel {
+class CatalogModel extends ChangeNotifier {
+
+  var storage = FirebaseStorage.instance;
+
   static List<String> itemNames = [
     'Code Smell',
     'Control Flow',
@@ -29,7 +27,7 @@ class CatalogModel {
   /// Get item by [id].
   ///
   /// In this sample, the catalog is infinite, looping over [itemNames].
-  Item getById(int id) => Item(id, itemNames[id % itemNames.length]);
+  Item getById(int id) => Item(id, itemNames[id]);
 
   /// Get item by its position in the catalog.
   Item getByPosition(int position) {
@@ -39,8 +37,11 @@ class CatalogModel {
   }
 }
 
-@immutable
 class Item {
+
+  var storage = FirebaseStorage.instance;
+
+
   final int id;
   final String name;
   final Color color;
@@ -57,3 +58,4 @@ class Item {
   @override
   bool operator ==(Object other) => other is Item && other.id == id;
 }
+

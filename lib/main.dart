@@ -7,6 +7,9 @@ import 'package:provider_shopper/models/login.dart';
 import 'package:provider_shopper/screens/cart.dart';
 import 'package:provider_shopper/screens/catalog.dart';
 import 'package:provider_shopper/screens/login.dart';
+import 'package:provider_shopper/screens/profile.dart';
+import 'package:provider_shopper/screens/addData.dart';
+
 
 
 void main() {
@@ -26,7 +29,6 @@ class MyApp extends StatelessWidget {
         // CartModel is implemented as a ChangeNotifier, which calls for the use
         // of ChangeNotifierProvider. Moreover, CartModel depends
         // on CatalogModel, so a ProxyProvider is needed.
-
         ChangeNotifierProxyProvider<CatalogModel, CartModel>(
           create: (context) => CartModel(),
           update: (context, catalog, cart) {
@@ -44,7 +46,9 @@ class MyApp extends StatelessWidget {
                 routes: {
                   '/': (context) => LoginScreen(),
                   '/catalog': (context) => CatalogScreen(),
-                  '/cart': (context) => MyCart(),
+                  '/cart': (context) => CartScreen(),
+                  '/profile': (context) => ProfileScreen(),
+                  '/adddata': (context) => AddDataScreen()
                 },
               );
             }
