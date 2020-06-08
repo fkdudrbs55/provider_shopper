@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:provider_shopper/models/cart.dart';
 import 'package:provider_shopper/models/catalog.dart';
 import 'package:provider_shopper/models/login.dart';
-import 'package:provider_shopper/common/firestorageservice.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+
 
 class CatalogScreen extends StatelessWidget {
-
   //Hello
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.pushNamed(context, '/adddata'),
@@ -33,38 +30,23 @@ class CatalogScreen extends StatelessWidget {
               mainAxisSpacing: 1.0,
               crossAxisSpacing: 5.0,
             ),
+              delegate: SliverChildBuilderDelegate((context, index) {
+                if (index > 1) return null;
 
-            delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                  return _MyListItem(index);
-                },
-                childCount: CatalogModel.itemNames.length),
+                return new StreamBuilder<QuerySnapshot>(
+                    stream: Firestore.instance.collection("SampleCollection")
+                        .snapshots(),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<QuerySnapshot> snapshot) {
+                      if (snapshot.hasError)
+                        return new Text("There is an error");
+                      return _MyListItem(index);
+                    });
+              }
+              )
           ),
-        ],
+        ]
       ),
-    );
-  }
-}
-
-class _AddButton extends StatelessWidget {
-  final Item item;
-
-  const _AddButton({Key key, @required this.item}) : super(key: key);
-
-  //Add uncheck functionality
-
-  @override
-  Widget build(BuildContext context) {
-    var cart = Provider.of<CartModel>(context);
-
-    return FlatButton(
-      onPressed: cart.items.contains(item)
-          ? () => cart.remove(item)
-          : () => cart.add(item),
-      splashColor: Theme.of(context).primaryColor,
-      child: cart.items.contains(item)
-          ? Icon(Icons.check, semanticLabel: 'ADDED')
-          : Text('ADD'),
     );
   }
 }
@@ -77,10 +59,6 @@ class _MyAppBar extends StatelessWidget {
       title: Text('Catalog', style: Theme.of(context).textTheme.headline),
       floating: true,
       actions: [
-        IconButton(
-          icon: Icon(Icons.shopping_cart),
-          onPressed: () => Navigator.pushNamed(context, '/cart'),
-        ),
         IconButton(
           icon: Icon(Icons.backspace),
           onPressed: () {
@@ -102,52 +80,49 @@ class _MyListItem extends StatelessWidget {
 
   _MyListItem(this.index, {Key key}) : super(key: key);
 
-
   @override
   Widget build(BuildContext context) {
     var catalog = Provider.of<CatalogModel>(context);
-    var item = catalog.getByPosition(index);
     var textTheme = Theme.of(context).textTheme.body2;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: LimitedBox(
-        maxHeight: 150,
-        child: Row(
-          children: [
-            AspectRatio(
-              aspectRatio: 1,
-              child: Container(
-                color: item.color,
+    return new StreamBuilder<QuerySnapshot>(
+        stream: Firestore.instance.collection("SampleCollection")
+            .snapshots(),
+        builder: (BuildContext context,
+            AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasError) return new Text("There is an error");
+
+          var title = snapshot.data.documents.elementAt(index)['Title'];
+          var imageUrl = snapshot.data.documents.elementAt(index)['imageUrl'];
+
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: LimitedBox(
+              maxHeight: 150,
+              child: Column(
+                children: [
+                  Container(
+                      height: 130,
+                      width: 150,
+                      child: CachedNetworkImage(
+                        placeholder: (context, url) =>
+                            CircularProgressIndicator(),
+                        imageUrl: imageUrl,
+                      )),
+                  Row(children: [
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Text(title, style: textTheme),
+                    ),
+                    SizedBox(width: 10),
+//              _AddButton(item: item),
+                  ])
+                ],
               ),
             ),
-            SizedBox(width: 10),
-            Expanded(
-              child: Text(item.name, style: textTheme),
-            ),
-            SizedBox(width: 10),
-            _AddButton(item: item),
-          ],
-        ),
-      ),
-    );
+          );
+        });
+
   }
-}
 
-class Record {
-  final String location;
-  final String url;
-  final DocumentReference reference;
-
-  Record.fromMap(Map<String, dynamic> map, {this.reference})
-      : assert(map['location'] != null),
-        assert(map['imageUrl'] != null),
-        location = map['location'],
-        url = map['imageUrl'];
-
-  Record.fromSnapshot(DocumentSnapshot snapshot)
-      : this.fromMap(snapshot.data, reference: snapshot.reference);
-
-  @override
-  String toString() => "Record<$location:$url>";
 }

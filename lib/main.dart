@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:provider_shopper/common/theme.dart';
-import 'package:provider_shopper/models/cart.dart';
 import 'package:provider_shopper/models/catalog.dart';
 import 'package:provider_shopper/models/login.dart';
-import 'package:provider_shopper/screens/cart.dart';
 import 'package:provider_shopper/screens/catalog.dart';
 import 'package:provider_shopper/screens/login.dart';
 import 'package:provider_shopper/screens/profile.dart';
@@ -29,13 +27,13 @@ class MyApp extends StatelessWidget {
         // CartModel is implemented as a ChangeNotifier, which calls for the use
         // of ChangeNotifierProvider. Moreover, CartModel depends
         // on CatalogModel, so a ProxyProvider is needed.
-        ChangeNotifierProxyProvider<CatalogModel, CartModel>(
-          create: (context) => CartModel(),
-          update: (context, catalog, cart) {
-            cart.catalog = catalog;
-            return cart;
-          },
-        ),
+//        ChangeNotifierProxyProvider<CatalogModel, CartModel>(
+//          create: (context) => CartModel(),
+//          update: (context, catalog, cart) {
+//            cart.catalog = catalog;
+//            return cart;
+//          },
+//        ),
       ],
         child: Consumer(
             builder: (context, LoginModel user, _) {
@@ -46,7 +44,6 @@ class MyApp extends StatelessWidget {
                 routes: {
                   '/': (context) => LoginScreen(),
                   '/catalog': (context) => CatalogScreen(),
-                  '/cart': (context) => CartScreen(),
                   '/profile': (context) => ProfileScreen(),
                   '/adddata': (context) => AddDataScreen()
                 },
