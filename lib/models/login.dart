@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 enum Status { Uninitialized, Authenticated, Authenticating, Unauthenticated }
 
+//TODO Fix "Tried to use provider with a subtype of listenable/stream"
+
 class LoginModel extends ChangeNotifier {
   FirebaseAuth _auth;
   FirebaseUser _user;

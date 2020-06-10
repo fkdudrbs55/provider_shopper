@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:provider_shopper/models/login.dart';
 
 class AddDataScreen extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     var login = Provider.of<LoginModel>(context);
