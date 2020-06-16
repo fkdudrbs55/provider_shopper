@@ -18,6 +18,18 @@ class DatabaseService {
                 .map((doc) => CafeItem.fromFirestore(doc)).toList());
   }
 
+  Stream<List<ItemDetail>> streamDetailList(CafeItem item) {
+    return _db
+        .collection('SampleCollection')
+        .document(item.documentID)
+        .collection('Comments')
+        .snapshots()
+        .map(
+            (list) =>
+            list.documents
+                .map((doc) => ItemDetail.fromFirestore(doc)).toList());
+  }
+
   /// Query a subcollection
 //  Stream<List<Weapon>> streamWeapons(FirebaseUser user) {
 //    var ref = _db.collection('heroes').document(user.uid).collection('weapons');

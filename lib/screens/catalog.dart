@@ -1,16 +1,21 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:provider_shopper/models/catalog.dart';
 import 'package:provider_shopper/models/login.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:provider_shopper/screens/detailPage.dart';
+import 'package:provider_shopper/common/DatabaseService.dart';
 
 class CatalogScreen extends StatelessWidget {
-
-  //TODO Fix: The following NoSuchMethodError was thrown building CatalogScreen(dirty, dependencies: [_DefaultInheritedProviderScope<List<CafeItem>>, _LocalizationsScope-[GlobalKey#f9375], _InheritedTheme]):
 
   @override
   Widget build(BuildContext context) {
     var itemsList = Provider.of<List<CafeItem>>(context);
+
+    if (itemsList == null) {
+      return CircularProgressIndicator();
+    };
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
@@ -24,6 +29,7 @@ class CatalogScreen extends StatelessWidget {
         _MyAppBar(),
         //_MyAppBar 바로 밑에 있는 간격
         SliverToBoxAdapter(child: SizedBox(height: 5)),
+
 
         SliverGrid(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -64,6 +70,7 @@ class _MyAppBar extends StatelessWidget {
 }
 
 class _MyListItem extends StatelessWidget {
+  final DatabaseService _db = DatabaseService();
   final int index;
   final List<CafeItem> itemsList;
 
@@ -75,10 +82,15 @@ class _MyListItem extends StatelessWidget {
         .of(context)
         .textTheme
         .title;
-    var item = itemsList.elementAt(index);
+
+    final item = itemsList.elementAt(index);
+
+    //TODO Why is this not working?
 
     return InkWell(
-      onTap: () => Navigator.pushNamed(context, '/profile'),
+      onTap: () =>
+          Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => DetailPage(item))),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         child: Column(

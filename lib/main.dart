@@ -10,24 +10,34 @@ import 'package:provider_shopper/screens/catalog.dart';
 import 'package:provider_shopper/screens/login.dart';
 import 'package:provider_shopper/screens/profile.dart';
 import 'package:provider_shopper/screens/addData.dart';
+import 'package:provider_shopper/screens/detailPage.dart';
 
-
-void main() {
-  runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final LoginModel _auth = LoginModel.instance();
+  final bool isLogged = await _auth.isLogged();
+  final MyApp myApp = MyApp(
+    initialRoute: isLogged ? '/catalog' : '/',
+  );
+  runApp(myApp);
 }
 
 class MyApp extends StatelessWidget {
+
+  final String initialRoute;
+
+  MyApp({this.initialRoute});
+
   @override
   Widget build(BuildContext context) {
     final DatabaseService _db = DatabaseService();
 
     return MultiProvider(
         providers: [
-          Provider(create: (context) => LoginModel.instance()),
+          ChangeNotifierProvider(create: (context) => LoginModel.instance()),
 
 
-          Provider(create: (context) => CatalogModel()),
-
+//          Provider(create: (context) => CatalogModel()),
 
 //        ChangeNotifierProxyProvider<CatalogModel, CartModel>(
 //          create: (context) => CartModel(),
@@ -38,10 +48,7 @@ class MyApp extends StatelessWidget {
 //        ),
 //        StreamProvider<CafeItem>.value(value: Firestore.instance.collection(path)),
 
-          StreamProvider<FirebaseUser>.value(
-              value: FirebaseAuth.instance.onAuthStateChanged),
-
-          StreamProvider<List<CafeItem>>.value(value: _db.streamCafeList())
+          StreamProvider<List<CafeItem>>.value(value: _db.streamCafeList()),
 
         ],
         child: Consumer(
@@ -49,12 +56,12 @@ class MyApp extends StatelessWidget {
               return MaterialApp(
                 title: 'Provider Demo',
                 theme: appTheme,
-                initialRoute: '/',
+                initialRoute: initialRoute,
                 routes: {
                   '/': (context) => LoginScreen(),
                   '/catalog': (context) => CatalogScreen(),
                   '/profile': (context) => ProfileScreen(),
-                  '/adddata': (context) => AddDataScreen()
+                  '/adddata': (context) => AddDataScreen(),
                 },
               );
             }

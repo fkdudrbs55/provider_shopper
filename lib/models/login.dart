@@ -3,9 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 enum Status { Uninitialized, Authenticated, Authenticating, Unauthenticated }
 
-//TODO Fix "Tried to use provider with a subtype of listenable/stream"
-
 class LoginModel extends ChangeNotifier {
+
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+
   FirebaseAuth _auth;
   FirebaseUser _user;
   String _userUID;
@@ -16,6 +17,7 @@ class LoginModel extends ChangeNotifier {
   }
 
   Status get status => _status;
+
   FirebaseUser get user => _user;
 
   String get userUID => _user.uid;
@@ -56,4 +58,14 @@ class LoginModel extends ChangeNotifier {
     }
     notifyListeners();
   }
+
+  Future<bool> isLogged() async {
+    try {
+      final FirebaseUser user = await _firebaseAuth.currentUser();
+      return user != null;
+    } catch (e) {
+      return false;
+    }
+  }
+
 }

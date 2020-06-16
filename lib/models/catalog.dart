@@ -1,30 +1,39 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 
-class CatalogModel extends ChangeNotifier {
+class CatalogModel {
 
   final databaseReference = Firestore.instance;
 
 }
 
+class ItemDetail {
+  final String ID;
+  final String comment;
+  final double score;
+  final Timestamp timestamp;
+
+  ItemDetail({this.ID, this.comment, this.score, this.timestamp});
+
+  factory ItemDetail.fromFirestore(DocumentSnapshot doc){
+    return ItemDetail(
+        ID: doc.data['ID'] ?? '',
+        comment: doc.data['comment'] ?? '',
+        score: doc.data['score'] ?? '',
+        timestamp: doc.data['timestamp'] ?? ''
+    );
+  }
+}
+
 class CafeItem {
+  final String documentID;
   final String title;
   final String imageUrl;
 
-  CafeItem({this.title, this.imageUrl});
-
-//  factory CafeItem.fromMap(Map data){
-//    data = data ?? {};
-//    return CafeItem(
-//        title: data['title'] ?? '',
-//        imageUrl: data['imageUrl'] ?? ''
-//    );
-//  }
+  CafeItem({this.documentID, this.title, this.imageUrl});
 
   factory CafeItem.fromFirestore(DocumentSnapshot doc){
-    Map data = doc.data;
     return CafeItem(
+        documentID: doc.documentID,
         title: doc.data['title'] ?? '',
         imageUrl: doc.data['imageUrl'] ?? ''
     );
